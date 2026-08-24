@@ -1,0 +1,24 @@
+.battery-fill {
+    border-radius: 2px;
+    transition: width 200ms ease, background-color 200ms ease;
+
+    &.normal {background-color: rgba(255, 255, 255, 0.9);}
+    &.charging {background-color: #a6e3a1;}
+    &.warning {background-color: #fab387;}
+    &.low {background-color: #f38ba8;}
+}
+
+.battery-percentage {
+    font-size: 12px;
+    font-weight: bold;
+    transition: color 200ms ease;
+    
+    &.text-dark {color: #101015;}
+    &.text-light {color: #ffffff;}
+}
+
+.thunder-bg {
+    background-color: #0a192f;
+    border-radius: 99px;
+    padding: 2px;
+}
