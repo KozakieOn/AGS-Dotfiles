@@ -85,7 +85,7 @@ export default function Battery() {
 
         // Couleur de la jauge
         if (isCharging || p >= 1.0) { fillBar.add_css_class("charging") } 
-        else if (p <= 0.15) { fillBar.add_css_class("low") } 
+        else if (p <= 0.20) { fillBar.add_css_class("low") } 
         else if (p <= 0.30) { fillBar.add_css_class("warning") } 
         else { fillBar.add_css_class("normal") }
 

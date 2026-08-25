@@ -1,4 +1,5 @@
 @use "./widget/battery";
+@use "./widget/clock";
 
 // https://gitlab.gnome.org/GNOME/gtk/-/blob/gtk-3-24/gtk/theme/Adwaita/_colors-public.scss
 $fg-color: #{"@theme_fg_color"};
