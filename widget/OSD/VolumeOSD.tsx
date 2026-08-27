@@ -2,14 +2,11 @@ import { Gtk, Astal } from "ags/gtk4"
 import GLib from "gi://GLib"
 //@ts-ignore
 import Wp from "gi://AstalWp"
-
-// Si le fichier globals.ts est dans le dossier src/, remplace par "../../globals" 
-// Si globals.ts est à la racine absolue du projet, utilise "../globals"
 import { state } from "../../global"
 
 export default function VolumeOSD() {
     const audio = Wp.get_default()?.audio
-    const assetsPath = `${GLib.get_user_config_dir()}/ags/assets/Tray`
+    const assetsPath = `${GLib.get_user_config_dir()}/ags/assets/Tray/Volume/`
     let timeoutId: number | null = null
 
     // 1. Icône de l'OSD
@@ -57,10 +54,11 @@ export default function VolumeOSD() {
         levelBar.value = vol
 
         // Mise à jour de l'icône
-        let iconName = "volume-high.png"
-        if (isMute || vol <= 0) iconName = "volume-mute.png"
-        else if (vol <= 0.33) iconName = "volume-low.png"
-        else if (vol <= 0.66) iconName = "volume-medium.png"
+        let iconName = "speaker-high.svg"
+        if (isMute) iconName = "speaker-mute.svg"
+        else if (vol <= 0) iconName = "speaker-off.svg"
+        else if (vol <= 0.33) iconName = "speaker-low.svg"
+        else if (vol <= 0.75) iconName = "speaker-medium.svg"
 
         icon.set_from_file(`${assetsPath}/${iconName}`)
     }

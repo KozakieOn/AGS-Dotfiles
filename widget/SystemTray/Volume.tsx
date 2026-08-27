@@ -22,10 +22,10 @@ export default function VolumeWidget() {
 
         let iconName = "speaker-high.svg"
 
-        if (isMute || vol <= 0) {iconName = "speaker-mute.svg"}
+        if (isMute) {iconName = "speaker-mute.svg"}
+        else if (vol <= 0) {iconName = "speaker-off.svg"}
         else if (vol <= 0.33) {iconName = "speaker-low.svg"}
-        else if (vol <= 0.66) {iconName = "speaker-medium.svg"}
-        else {iconName = "speaker-high.svg"}
+        else if (vol <= 0.75) {iconName = "speaker-medium.svg"}
 
         icon.set_from_file(`${assetsPath}/${iconName}`)
     }
