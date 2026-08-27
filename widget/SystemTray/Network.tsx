@@ -20,13 +20,11 @@ export default function NetworkWidget() {
         let iconName = "no-network.svg"
 
         try {
-            // Check si on est sur un portail captif / besoin d'identification
-            const state = network.wifi?.state || network.state
-            const isPortal = network.connectivity === Network.Connectivity.PORTAL || 
-                             network.portal?.status === Network.PortalStatus.REQUIRED
+            const isPortal = network.connectivity === 3 || 
+                             (network.internet !== undefined && network.internet === Network.Internet?.PORTAL)
 
             if (isPortal) {
-                iconName = "wifi-cog.svg" 
+                iconName = "wifi-cog.svg"
             } else if (network.wifi) {
                 const wifi = network.wifi
                 const strength = wifi.strength ?? (typeof wifi.get_strength === "function" ? wifi.get_strength() : 0)
@@ -49,6 +47,7 @@ export default function NetworkWidget() {
         icon.set_from_file(`${assetsPath}/${iconName}`)
     }
 
+    // Connexion aux signaux système
     if (network) {
         network.connect("notify::primary", updateUI)
         network.connect("notify::wifi", updateUI)

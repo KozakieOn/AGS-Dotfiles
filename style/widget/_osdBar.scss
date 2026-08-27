@@ -1,0 +1,49 @@
+window#volume-osd {
+    background-color: transparent;
+    box-shadow: none; 
+}
+
+
+.osd-container {
+    background-color: rgba(30, 30, 46, 0.9);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+// Le curseur interactif
+scale.osd-scale {
+    padding: 0; // Enlève les marges par défaut gênantes de GTK
+
+    // La barre de fond vide
+    trough {
+        background-color: #313244;
+        border-radius: 8px;
+        min-height: 8px;
+
+        // La barre de couleur remplie (le volume actuel)
+        highlight {
+            background-color: #89b4fa;
+            border-radius: 8px;
+            // Pour que le changement via raccourcis clavier soit fluide
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+    }
+
+    // Le bouton que tu peux cliquer et glisser
+    slider {
+        background-color: #cdd6f4;
+        min-width: 14px;
+        min-height: 14px;
+        border-radius: 50%;
+        margin: -3px; // Décale légèrement le bouton pour le centrer sur la barre de 8px
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        transition: all 0.2s ease;
+        
+        // Un effet visuel sympathique au survol
+        &:hover {
+            background-color: #f5c2e7;
+            transform: scale(1.2);
+        }
+    }
+}

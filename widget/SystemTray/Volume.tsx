@@ -3,12 +3,16 @@ import GLib from "gi://GLib"
 //@ts-ignore
 import Wp from "gi://AstalWp"
 
-export default function VolumeWidget() { 
+export interface VolumeWidgetProps {
+    size?: number
+}
+
+export default function VolumeWidget({ size = 30 }: VolumeWidgetProps = {}) { 
     const audio = Wp.get_default()?.audio
     const assetsPath = `${GLib.get_user_config_dir()}/ags/assets/Tray/Volume`
 
     const icon = new Gtk.Image({
-        pixel_size: 30,
+        pixel_size: size,
         halign: Gtk.Align.CENTER,
         valign: Gtk.Align.CENTER,
     })

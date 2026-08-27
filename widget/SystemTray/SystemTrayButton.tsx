@@ -8,7 +8,9 @@ export default function SystemTrayButton() {
         <button 
             class="system-tray-btn"
             valign={Gtk.Align.CENTER}
-            onClicked={() => print("Ouvrir le menu rapide !")}
+            onClicked={() => 
+                print("Ouvrir le menu rapide !")
+            }
         >
             <box spacing={10} valign={Gtk.Align.CENTER}>
                 <VolumeWidget />

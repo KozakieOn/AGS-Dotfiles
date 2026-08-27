@@ -1,22 +1,32 @@
-# Ma Configuration AGS (v2)
+# AGS Configuration
 
-Une configuration personnalisée pour [Aylur's GTK Config (AGS)](https://github.com/Aylur/ags) construite avec **Astal**, **GTK4** et **TypeScript**.
+A personalized config for [Aylur's GTK Config (AGS)](https://github.com/Aylur/ags) made with **Astal**, **GTK4** and **TypeScript**.
 
-## Fonctionnalités
+## Features
 
-* **Widgets sur mesure (TSX)** : Interface modulaire construite avec des composants TypeScript.
+* **Custom Widgets**: Modular user interface built with TypeScript components.
 
-## Prérequis
+## Prerequisites
 
-Avant d'utiliser cette configuration, assurez-vous d'avoir installé les dépendances suivantes sur votre système Linux :
+Before installing this configuration, ensure you have the following dependencies installed on your Linux system.
 
 * `ags` (Aylur's GTK Config v2)
 * `astal`
 * `typescript`
 * `dart-sass`
 
-## Installation
-
-1. Clonez ce dépôt directement dans votre dossier de configuration utilisateur :
+## Set-up
+### 1. Clone the repo
 ```bash
-git clone [https://github.com/KozakieOn/AGS-Dotfiles.git](https://github.com/VOTRE_PSEUDO/VOTRE_DEPOT.git) ~/.config/ags
+git clone [https://github.com/KozakieOn/AGS-Dotfiles.git](https://github.com/KozakieOn/AGS-Dotfiles.git) ~/.config/ags
+```
+### 2. Install Node Dependencies
+
+```bash
+cd ~/.config/ags
+npm install
+```
+### 3. Run AGS
+```bash
+ags run
+```
