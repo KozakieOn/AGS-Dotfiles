@@ -13,27 +13,22 @@ export default function NetworkWidget() {
         valign: Gtk.Align.CENTER,
     })
 
-    // Mise à jour UI
     const updateUI = () => {
         if (!network) return
 
         let iconName = "no-network.svg"
 
         try {
-            const isPortal = network.connectivity === 3 || 
-                             (network.internet !== undefined && network.internet === Network.Internet?.PORTAL)
-
-            if (isPortal) {
-                iconName = "wifi-cog.svg"
-            } else if (network.wifi) {
-                const wifi = network.wifi
+            const wifi = network.wifi
+            
+            if (wifi) {
+                const state = wifi.state ?? 0
                 const strength = wifi.strength ?? (typeof wifi.get_strength === "function" ? wifi.get_strength() : 0)
 
-                if (strength <= 0) { iconName = "no-wifi.svg" }
-                else if (strength <= 25) { iconName = "wifi-low.svg" }
-                else if (strength <= 50) { iconName = "wifi-mid1.svg" }
-                else if (strength <= 75) { iconName = "wifi-mid2.svg" }
-                else { iconName = "wifi-high.svg" }
+                if (state <= 30) {iconName = "no-wifi.svg"}
+                else if (strength <= 25) {iconName = "wifi-low.svg"}
+                else if (strength <= 50) {iconName = "wifi-mid1.svg"}
+                else if (strength <= 75) {iconName = "wifi-mid2.svg"} else {iconName = "wifi-high.svg"}
             } else if (network.wired) {
                 iconName = "ethernet.svg"
             } else {
@@ -43,19 +38,17 @@ export default function NetworkWidget() {
             print(`[Network Error] Erreur lors de la lecture du Wi-Fi : ${error}`)
         }
 
-        // Application de l'image
         icon.set_from_file(`${assetsPath}/${iconName}`)
     }
 
-    // Connexion aux signaux système
     if (network) {
         network.connect("notify::primary", updateUI)
         network.connect("notify::wifi", updateUI)
-        network.connect("notify::connectivity", updateUI)
         
         if (network.wifi) {
             network.wifi.connect("notify::strength", updateUI)
             network.wifi.connect("notify::state", updateUI)
+            network.wifi.connect("notify::enabled", updateUI)
         }
         
         updateUI()

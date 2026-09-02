@@ -1,0 +1,81 @@
+.qs-split-button {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.qs-toggle-main {
+    background-color: transparent;
+    border-radius: 12px 0 0 12px;
+    border: none;
+    transition: background-color 200ms ease;
+}
+
+.qs-toggle-main:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.qs-toggle-main.active {
+    background-color: #3584e4;
+    color: white;
+}
+
+.qs-toggle-main.active:hover {
+    background-color: #4a90e2;
+}
+
+.qs-toggle-arrow {
+    background-color: transparent;
+    border-radius: 0 12px 12px 0;
+    border: none;
+    padding: 0 10px;
+    min-width: 32px;
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    transition: background-color 200ms ease;
+}
+
+.qs-toggle-arrow:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.qs-wifi-list-container {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 8px;
+    margin-top: 4px;
+}
+
+.qs-ap-item {
+    border-radius: 8px;
+    padding: 6px;
+}
+
+.qs-ap-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.qs-ap-label {
+    font-size: 13px;
+}
+
+.qs-ap-label.active {
+    color: #3584e4;
+    font-weight: bold;
+}
+
+.qs-ap-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    border: none;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.qs-ap-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.qs-ap-btn.danger:hover {
+    background-color: #e01b24;
+    color: white;
+}
