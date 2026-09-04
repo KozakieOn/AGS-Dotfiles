@@ -9,11 +9,12 @@
 }
 .bgFillBar{
     border-radius:2px;
-    background-color: rgba(142, 164, 188, 0.80);
+    background-color: rgba(255, 255, 255, 0.45);
 }
 
 .battery-percentage {
-    font-size: 12px;
+    font-size: 13px;
+    margin:1px 1px 0 0;
     font-weight: bold;
     transition: color 200ms ease;
     color: #101015;

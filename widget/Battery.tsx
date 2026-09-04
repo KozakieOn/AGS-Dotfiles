@@ -53,6 +53,7 @@ export default function Battery() {
         halign: Gtk.Align.CENTER,
         valign: Gtk.Align.CENTER,
     })
+    label.add_css_class("battery-percentage")
 
     // Éclair
     const thunderPicture = new Gtk.Image({
