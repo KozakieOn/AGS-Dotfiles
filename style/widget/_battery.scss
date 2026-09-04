@@ -7,14 +7,16 @@
     &.warning {background-color: #fab387;}
     &.low {background-color: #f38ba8;}
 }
+.bgFillBar{
+    border-radius:2px;
+    background-color: rgba(142, 164, 188, 0.80);
+}
 
 .battery-percentage {
     font-size: 12px;
     font-weight: bold;
     transition: color 200ms ease;
-    
-    &.text-dark {color: #101015;}
-    &.text-light {color: #ffffff;}
+    color: #101015;
 }
 
 .thunder-bg {

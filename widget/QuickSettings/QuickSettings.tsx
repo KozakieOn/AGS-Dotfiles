@@ -2,6 +2,7 @@ import App from "ags/gtk4/app"
 import { Astal } from "ags/gtk4"
 
 import WifiMenu from "./WifiMenu"
+import BluetoothMenu from "./BluetoothMenu"
 
 export default function Quicksettings(){
     return (
@@ -16,6 +17,7 @@ export default function Quicksettings(){
         >
             <box spacing={16} cssClasses={["qs-container"]}>
                 <WifiMenu />
+                <BluetoothMenu />
             </box>
         </window>
     )

@@ -27,7 +27,7 @@ function getKnownNetworks(): string[] {
 
 function getActiveSsid(): string | null {
     try {
-        const [success, stdout] = GLib.spawn_command_line_sync("LC_ALL=C nmcli -t -f TYPE,NAME,ACTIVE connection show --active")
+        const [success, stdout] = GLib.spawn_command_line_sync("nmcli -t -f TYPE,NAME,ACTIVE connection show --active")
         if (success && stdout) {
             const output = new TextDecoder().decode(stdout)
             for (const line of output.split("\n")) {
@@ -268,7 +268,6 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
         disconnectBtn.connect("clicked", () => {
             GLib.spawn_command_line_async(`nmcli connection down "${ap.ssid}"`)
             revealer.set_reveal_child(false)
-            setTimeout(onRefresh, 100)
             setTimeout(onRefresh, 400)
         })
         
@@ -277,7 +276,6 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
             GLib.spawn_command_line_async(`nmcli connection down "${ap.ssid}"`)
             GLib.spawn_command_line_async(`nmcli connection delete "${ap.ssid}"`)
             revealer.set_reveal_child(false)
-            setTimeout(onRefresh, 100)
             setTimeout(onRefresh, 400)
         })
         

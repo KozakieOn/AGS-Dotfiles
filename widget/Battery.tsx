@@ -37,7 +37,7 @@ export default function Battery() {
         height_request: CONFIG.barHeight,
     })
     bgContainer.append(fillBar)
-    bgContainer.add_css_class("battery-bg")
+    bgContainer.add_css_class("bgFillBar")
 
     // Cadre de la batterie
     const framePicture = new Gtk.Picture({
@@ -88,10 +88,6 @@ export default function Battery() {
         else if (p <= 0.20) { fillBar.add_css_class("low") } 
         else if (p <= 0.30) { fillBar.add_css_class("warning") } 
         else { fillBar.add_css_class("normal") }
-
-        // Couleur du texte
-        if (p < 0.45 && !isCharging) { label.set_css_classes(["battery-percentage", "text-light"]) } 
-        else { label.set_css_classes(["battery-percentage", "text-dark"]) }
 
         label.set_label(`${Math.round(p * 100)}`)
         thunderContainer.set_visible(isCharging)
