@@ -1,0 +1,144 @@
+// ==========================================
+// Palette de couleurs (Base: #0a192f)
+// ==========================================
+$bg-main: #0a192f;
+$bg-card: lighten($bg-main, 4%);         // #112240 - Cartes et conteneurs
+$bg-card-dark: darken($bg-main, 2%);    // #071223 - Fond de liste déroulante
+$bg-hover: rgba(255, 255, 255, 0.06);
+$bg-active: rgba(255, 255, 255, 0.12);
+
+$accent: #3b82f6;                       // Bleu vibrant assorti au fond nuit
+$accent-hover: #60a5fa;
+$danger: #f43f5e;                       // Rouge adouci pour thème sombre
+$danger-hover: #e11d48;
+
+$border-hover: rgba(255, 255, 255, 0.15);
+
+$text-primary: #e2e8f0;
+$text-muted: #e2e8f0;
+
+// ==========================================
+// Composants QuickSettings
+// ==========================================
+
+// Conteneur du Split Button (Bouton principal + Flèche)
+.qs-split-button {
+  background-color: $bg-card;
+  border-radius: 12px;
+  transition: border-color 200ms ease;
+
+  &:hover {
+    border-color: $border-hover;
+  }
+
+  // Bouton principal (Partie gauche)
+  .qs-toggle-main {
+    background-color: transparent;
+    border-radius: 11px 0 0 11px;
+    border: none;
+    color: $text-primary;
+    transition: background-color 200ms ease, color 200ms ease;
+
+    &:hover {
+      background-color: $bg-hover;
+    }
+
+    &.active {
+      background-color: $accent;
+      color: #ffffff;
+
+      &:hover {
+        background-color: $accent-hover;
+      }
+    }
+  }
+
+  // Bouton flèche (Partie droite)
+  .qs-toggle-arrow {
+    background-color: transparent;
+    border-radius: 0 11px 11px 0;
+    border: none;
+    padding: 0 10px;
+    min-width: 32px;
+    color: $text-muted;
+    transition: background-color 200ms ease, color 200ms ease;
+
+    &:hover {
+      background-color: $bg-hover;
+      color: $text-primary;
+    }
+  }
+}
+
+// Conteneur de la liste déroulante (Wi-Fi / Bluetooth)
+.qs-wifi-list-container {
+  background-color: $bg-card-dark;
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 6px;
+}
+
+// Élément individuel dans la liste
+.qs-ap-item {
+  border-radius: 8px;
+  padding: 6px 8px;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: $bg-hover;
+  }
+}
+
+// Textes et libellés
+.qs-ap-label {
+  font-size: 13px;
+  color: $text-primary;
+
+  &.active {
+    color: $accent-hover;
+    font-weight: 600;
+  }
+}
+
+.qs-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  letter-spacing: 0.3px;
+  padding-top:4px;
+  padding-bottom:4px;
+}
+
+// Boutons d'action (Connecter, Oublier, Valider...)
+.qs-ap-btn {
+  background-color: $bg-hover;
+  color: $text-primary;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: $bg-active;
+  }
+
+  &.active {
+    background-color: $accent;
+    color: #ffffff;
+
+    &:hover {
+      background-color: $accent-hover;
+    }
+  }
+
+  &.danger {
+    color: $danger;
+
+    &:hover {
+      background-color: $danger;
+      color: #ffffff;
+    }
+  }
+}

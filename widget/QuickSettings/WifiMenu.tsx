@@ -2,6 +2,7 @@ import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
 //@ts-ignore
 import Network from "gi://AstalNetwork"
+import { QsMenuItem } from "./QsMenuItem"
 
 interface AccessPoint {
     ssid: string | null
@@ -15,9 +16,8 @@ interface AccessPoint {
 function getKnownNetworks(): string[] {
     try {
         const [success, stdout] = GLib.spawn_command_line_sync("nmcli -t -f NAME connection show")
-        if(success && stdout){
-            const output = new TextDecoder().decode(stdout)
-            return output.split("\n").map(n => n.trim()).filter(n => n !== "")
+        if (success && stdout) {
+            return new TextDecoder().decode(stdout).split("\n").map(n => n.trim()).filter(n => n !== "")
         }
     } catch (e) {
         console.error("[WifiMenu] Erreur lecture réseau :", e)
@@ -63,7 +63,6 @@ export default function WifiMenu() {
 
     const network = Network.get_default()
     if (!network || !network.wifi) return <box />
-    
     const wifi = network.wifi
 
     const toggleWifi = () => {
@@ -71,119 +70,34 @@ export default function WifiMenu() {
         GLib.spawn_command_line_async(`nmcli radio wifi ${isEnabled ? "off" : "on"}`)
     }
 
-    // --- Bouton principal (Toggle Wi-Fi) ---
-    const mainButton = new Gtk.Button({
-        cssClasses: ["qs-toggle-main"],
-    })
-
     const iconImage = new Gtk.Image({ pixelSize: 24 })
-    
-    // On recrée les labels pour le nom
-    const titleLabel = new Gtk.Label({ label: "Wi-Fi", halign: Gtk.Align.START, cssClasses: ["qs-title"] })
-    const subtitleLabel = new Gtk.Label({
-        halign: Gtk.Align.START,
-        cssClasses: ["qs-subtitle"],
-        maxWidthChars: 16,
-        ellipsize:3,
-        lines:1,
-    })
-
-    const textBox = new Gtk.Box({
+    const apListBox = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
-        valign: Gtk.Align.CENTER,
+        spacing: 2,
     })
-    textBox.append(titleLabel)
-    textBox.append(subtitleLabel)
 
-    const textRevealer = new Gtk.Revealer({
-        transitionType: Gtk.RevealerTransitionType.SLIDE_RIGHT,
-        transitionDuration: 250,
-        revealChild: false,
+    // Création via notre composant partagé
+    const menu = new QsMenuItem({
+        title: "Wi-Fi",
+        iconWidget: iconImage,
+        listContent: apListBox,
+        onMainClick: toggleWifi,
+        subtitleMaxWidthChars: 16,
     })
-    textRevealer.set_child(textBox)
 
-    const mainContentBox = new Gtk.Box({
-        spacing: 12,
-        valign: Gtk.Align.CENTER,
-        halign: Gtk.Align.START,
-        marginStart: 8,
-        marginEnd: 8,
-    })
-    mainContentBox.append(iconImage)
-    mainContentBox.append(textRevealer)
-    mainButton.set_child(mainContentBox)
-
-    mainButton.connect("clicked", toggleWifi)
-
-    // Mise à jour de l'UI du bouton principal via les signaux
     const updateMainButton = () => {
         const state = wifi.state ?? 0
         const ssid = wifi.ssid
 
         iconImage.set_from_file(getCustomWifiIcon(wifi))
-        subtitleLabel.set_label(ssid || "Déconnecté") // On met à jour le nom (même si c'est caché)
-
-        if (state > 30) {
-            mainButton.add_css_class("active")
-        } else {
-            mainButton.remove_css_class("active")
-        }
+        menu.setSubtitle(ssid || "Déconnecté")
+        menu.setActive(state > 30)
     }
 
     wifi.connect("notify::state", updateMainButton)
     wifi.connect("notify::ssid", updateMainButton)
     wifi.connect("notify::icon-name", updateMainButton)
     updateMainButton()
-
-    // --- Bouton Flèche (Sous-menu) ---
-    let isOpen = false
-    const arrowImage = new Gtk.Image({ iconName: "pan-down-symbolic", pixelSize: 16 })
-    const arrowButton = new Gtk.Button({
-        cssClasses: ["qs-toggle-arrow"],
-        child: arrowImage,
-    })
-
-    const revealer = new Gtk.Revealer({
-        transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
-        transitionDuration: 250,
-        revealChild: false,
-    })
-
-    arrowButton.connect("clicked", () => {
-        isOpen = !isOpen
-
-        const root = wrapper.get_root() as Gtk.Window | null
-        if (isOpen && root) {
-            root.set_default_size(-1, -1)
-        }
-
-        revealer.set_reveal_child(isOpen)
-        textRevealer.set_reveal_child(isOpen)
-        arrowImage.set_from_icon_name(isOpen ? "pan-up-symbolic" : "pan-down-symbolic")
-    })
-
-    // --- Liste des réseaux Wi-Fi ---
-    const apListBox = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        spacing: 2,
-    })
-
-    const scrolledWindow = new Gtk.ScrolledWindow({
-        minContentHeight: 180,
-        maxContentHeight: 200,
-        propagateNaturalHeight: true,
-        hscrollbarPolicy: Gtk.PolicyType.NEVER,
-        cssClasses: ["qs-wifi-scroll"],
-    })
-    scrolledWindow.set_child(apListBox)
-
-    const listContainer = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        spacing: 4,
-        cssClasses: ["qs-wifi-list-container"],
-    })
-    listContainer.append(scrolledWindow)
-    revealer.set_child(listContainer)
 
     const updateAccessPoints = () => {
         let child = apListBox.get_first_child()
@@ -200,18 +114,18 @@ export default function WifiMenu() {
             ap.ssid && index === self.findIndex((t: AccessPoint) => t.ssid === ap.ssid)
         )
 
-        const knownBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4})
-        const unknownBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4})
+        const knownBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4 })
+        const unknownBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4 })
 
-        knownBox.append(new Gtk.Label({ label: "Réseaux enregistré", halign: Gtk.Align.START, cssClasses:["qs-subtitle"]}))
-        unknownBox.append(new Gtk.Label({ label: "Autres réseaux", halign: Gtk.Align.START, cssClasses:["qs-subtitle"]}))
-        
+        knownBox.append(new Gtk.Label({ label: "Réseaux enregistrés", halign: Gtk.Align.START, cssClasses: ["qs-subtitle"] }))
+        unknownBox.append(new Gtk.Label({ label: "Autres réseaux", halign: Gtk.Align.START, cssClasses: ["qs-subtitle"] }))
+
         let hasKnown = false
         let hasUnknown = false
 
         for (const ap of uniqueAps) {
             const isKnown = knownNetworks.includes(ap.ssid!)
-            if(isKnown) {
+            if (isKnown) {
                 knownBox.append(createApRow(ap, activeSsid, true, updateAccessPoints))
                 hasKnown = true
             } else {
@@ -228,42 +142,7 @@ export default function WifiMenu() {
     wifi.connect("notify::ssid", updateAccessPoints)
     updateAccessPoints()
 
-    // --- Assemblage final du composant ---
-    const splitButtonBox = new Gtk.Box({
-        cssClasses: ["qs-split-button"],
-        halign: Gtk.Align.START,
-    })
-    splitButtonBox.append(mainButton)
-    splitButtonBox.append(arrowButton)
-
-    const wrapper = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        spacing: 8,
-        valign: Gtk.Align.START,
-        vexpand: false,
-    })
-    wrapper.append(splitButtonBox)
-    wrapper.append(revealer)
-
-    // Réduction forcée de la surface GTK4 Wayland
-    const requestShrink = () => {
-        if (!isOpen) {
-            const root = wrapper.get_root() as Gtk.Window | null
-            if (root) {
-                root.set_default_size(1, 1)
-            }
-        }
-    }
-
-    revealer.connect("notify::child-revealed", () => {
-        if (!revealer.get_child_revealed() && !isOpen) requestShrink()
-    })
-
-    textRevealer.connect("notify::child-revealed", () => {
-        if (!textRevealer.get_child_revealed() && !isOpen) requestShrink()
-    })
-
-    return wrapper
+    return menu.wrapper
 }
 
 function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boolean, onRefresh: () => void) {
@@ -283,8 +162,8 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
         cssClasses: ["qs-ap-item"],
         marginStart: 4, marginEnd: 4,
     })
-    
-    const topBox = new Gtk.Box({spacing: 8})
+
+    const topBox = new Gtk.Box({ spacing: 8 })
     const icon = new Gtk.Image({ file: `${assetsPath}/${iconName}`, pixelSize: 18 })
     const label = new Gtk.Label({
         label: ap.ssid || "Inconnu",
@@ -316,7 +195,7 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
             revealer.set_reveal_child(false)
             setTimeout(onRefresh, 400)
         })
-        
+
         const forgetBtn = new Gtk.Button({ label: "Oublier", cssClasses: ["qs-ap-btn", "danger"] })
         forgetBtn.connect("clicked", () => {
             GLib.spawn_command_line_async(`nmcli connection down "${ap.ssid}"`)
@@ -324,27 +203,25 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
             revealer.set_reveal_child(false)
             setTimeout(onRefresh, 400)
         })
-        
+
         actionsBox.append(disconnectBtn)
         actionsBox.append(forgetBtn)
-    }
-    else if (isKnown){
+    } else if (isKnown) {
         const connectBtn = new Gtk.Button({ label: "Connecter", cssClasses: ["qs-ap-btn"] })
         connectBtn.connect("clicked", () => {
             GLib.spawn_command_line_async(`nmcli connection up "${ap.ssid}"`)
             setTimeout(onRefresh, 400)
         })
-        
+
         const forgetBtn = new Gtk.Button({ label: "Oublier", cssClasses: ["qs-ap-btn", "danger"] })
         forgetBtn.connect("clicked", () => {
             GLib.spawn_command_line_async(`nmcli connection delete "${ap.ssid}"`)
             setTimeout(onRefresh, 400)
         })
-        
+
         actionsBox.append(connectBtn)
         actionsBox.append(forgetBtn)
-    }
-    else {
+    } else {
         if (!isEncrypted) {
             const connectBtn = new Gtk.Button({ label: "Connecter", cssClasses: ["qs-ap-btn", "active"] })
             connectBtn.connect("clicked", () => {
@@ -355,14 +232,14 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
         } else {
             const pwEntry = new Gtk.Entry({ placeholder_text: "Mot de passe...", visibility: false, hexpand: true })
             const connectBtn = new Gtk.Button({ label: "Valider", cssClasses: ["qs-ap-btn", "active"] })
-            
+
             connectBtn.connect("clicked", () => {
                 const pw = pwEntry.get_text()
                 if (pw) GLib.spawn_command_line_async(`nmcli device wifi connect "${ap.ssid}" password "${pw}"`)
                 else GLib.spawn_command_line_async(`nmcli device wifi connect "${ap.ssid}"`)
                 setTimeout(onRefresh, 1000)
             })
-            
+
             actionsBox.append(pwEntry)
             actionsBox.append(connectBtn)
         }

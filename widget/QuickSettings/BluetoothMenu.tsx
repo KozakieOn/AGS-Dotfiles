@@ -1,5 +1,6 @@
 import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
+import { QsMenuItem } from "./QsMenuItem"
 
 interface BluetoothDevice {
     mac: string
@@ -34,7 +35,7 @@ function getDevices(): BluetoothDevice[] {
         if (parts.length >= 3 && parts[0] === "Device") {
             const mac = parts[1]
             const name = parts.slice(2).join(" ")
-            
+
             const info = execCmd(`bluetoothctl info ${mac}`)
             const connected = info.includes("Connected: yes")
             const paired = info.includes("Paired: yes")
@@ -52,100 +53,23 @@ export default function BluetoothMenu() {
         setTimeout(updateUI, 500)
     }
 
-    // --- Bouton principal ---
-    // --- Bouton principal ---
-    const mainButton = new Gtk.Button({
-        cssClasses: ["qs-toggle-main"],
-    })
-
     const iconImage = new Gtk.Image({ iconName: "bluetooth-active-symbolic", pixelSize: 24 })
-    const titleLabel = new Gtk.Label({ label: "Bluetooth", halign: Gtk.Align.START, cssClasses: ["qs-title"] })
-    const subtitleLabel = new Gtk.Label({
-        halign: Gtk.Align.START,
-        cssClasses: ["qs-subtitle"],
-        maxWidthChars: 12,
-        ellipsize: 3,
-        lines: 1 
-    })
-
-    const textBox = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        valign: Gtk.Align.CENTER,
-    })
-    textBox.append(titleLabel)
-    textBox.append(subtitleLabel)
-
-    // Revealer pour cacher/montrer le texte
-    const textRevealer = new Gtk.Revealer({
-        transitionType: Gtk.RevealerTransitionType.SLIDE_RIGHT,
-        transitionDuration: 250,
-        revealChild: false, // Caché par défaut
-    })
-    textRevealer.set_child(textBox)
-
-    const mainContentBox = new Gtk.Box({
-        spacing: 12,
-        valign: Gtk.Align.CENTER,
-        halign: Gtk.Align.START,
-        marginStart: 8,
-        marginEnd: 8,
-    })
-    mainContentBox.append(iconImage)
-    mainContentBox.append(textRevealer)
-    mainButton.set_child(mainContentBox)
-
-    mainButton.connect("clicked", togglePower)
-
-    // --- Bouton Flèche (Sous-menu) ---
-    let isOpen = false
-    const arrowImage = new Gtk.Image({ iconName: "pan-down-symbolic", pixelSize: 16 })
-    const arrowButton = new Gtk.Button({
-        cssClasses: ["qs-toggle-arrow"],
-        child: arrowImage,
-    })
-
-    const revealer = new Gtk.Revealer({
-        transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
-        transitionDuration: 250,
-        revealChild: false,
-    })
-
-    arrowButton.connect("clicked", () => {
-        isOpen = !isOpen
-
-        const root = wrapper.get_root() as Gtk.Window | null
-        if (isOpen && root) {
-            root.set_default_size(-1, -1)
-        }
-
-        revealer.set_reveal_child(isOpen)
-        textRevealer.set_reveal_child(isOpen)
-        arrowImage.set_from_icon_name(isOpen ? "pan-up-symbolic" : "pan-down-symbolic")
-        if (isOpen) updateDevicesList()
-    })
-
-    // --- Liste des appareils ---
     const deviceListBox = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
         spacing: 2,
     })
 
-    const scrolledWindow = new Gtk.ScrolledWindow({
-        minContentHeight: 180,
-        maxContentHeight: 200,
-        propagateNaturalHeight: true,
-        hscrollbarPolicy: Gtk.PolicyType.NEVER,
-        cssClasses: ["qs-wifi-scroll"],
+    // Création via notre composant partagé
+    const menu = new QsMenuItem({
+        title: "Bluetooth",
+        iconWidget: iconImage,
+        listContent: deviceListBox,
+        onMainClick: togglePower,
+        onToggleOpen: (isOpen) => {
+            if (isOpen) updateDevicesList()
+        },
+        subtitleMaxWidthChars: 12,
     })
-    scrolledWindow.set_child(deviceListBox)
-
-    const listContainer = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        spacing: 4,
-        cssClasses: ["qs-wifi-list-container"],
-    })
-    listContainer.append(scrolledWindow)
-    revealer.set_child(listContainer)
 
     const updateDevicesList = () => {
         let child = deviceListBox.get_first_child()
@@ -182,53 +106,19 @@ export default function BluetoothMenu() {
     const updateUI = () => {
         const powered = isBluetoothPowered()
         if (powered) {
-            mainButton.add_css_class("active")
+            menu.setActive(true)
             const devices = getDevices()
             const connected = devices.find(d => d.connected)
-            subtitleLabel.set_label(connected ? connected.name : "Activé")
+            menu.setSubtitle(connected ? connected.name : "Activé")
         } else {
-            mainButton.remove_css_class("active")
-            subtitleLabel.set_label("Désactivé")
+            menu.setActive(false)
+            menu.setSubtitle("Désactivé")
         }
     }
 
     updateUI()
 
-    // --- Assemblage final ---
-    const splitButtonBox = new Gtk.Box({
-        cssClasses: ["qs-split-button"],
-        halign: Gtk.Align.START,
-    })
-    splitButtonBox.append(mainButton)
-    splitButtonBox.append(arrowButton)
-
-    const wrapper = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        spacing: 8,
-        valign: Gtk.Align.START,
-        vexpand: false,
-    })
-    wrapper.append(splitButtonBox)
-    wrapper.append(revealer)
-
-    const requestShrink = () => {
-        if (!isOpen) {
-            const root = wrapper.get_root() as Gtk.Window | null
-            if (root) {
-                root.set_default_size(1, 1)
-            }
-        }
-    }
-
-    revealer.connect("notify::child-revealed", () => {
-        if (!revealer.get_child_revealed() && !isOpen) requestShrink()
-    })
-
-    textRevealer.connect("notify::child-revealed", () => {
-        if (!textRevealer.get_child_revealed() && !isOpen) requestShrink()
-    })
-
-    return wrapper
+    return menu.wrapper
 }
 
 function createDeviceRow(device: BluetoothDevice, onRefresh: () => void) {
