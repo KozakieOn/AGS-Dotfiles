@@ -58,8 +58,9 @@ $text-muted: #e2e8f0;
     background-color: transparent;
     border-radius: 0 11px 11px 0;
     border: none;
-    padding: 0 10px;
-    min-width: 32px;
+    width:32px;
+    max-width: 32px;
+    padding: 0 4px;
     color: $text-muted;
     transition: background-color 200ms ease, color 200ms ease;
 

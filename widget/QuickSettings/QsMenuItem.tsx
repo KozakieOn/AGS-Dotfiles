@@ -59,11 +59,11 @@ export class QsMenuItem {
         textRevealer.set_child(textBox)
 
         const mainContentBox = new Gtk.Box({
-            spacing: 12,
+            spacing: 6,
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.START,
             marginStart: 8,
-            marginEnd: 8,
+            marginEnd: 0,
         })
         mainContentBox.append(iconWidget)
         mainContentBox.append(textRevealer)
@@ -75,6 +75,8 @@ export class QsMenuItem {
         const arrowButton = new Gtk.Button({
             cssClasses: ["qs-toggle-arrow"],
             child: arrowImage,
+            widthRequest: 32,
+            halign:Gtk.Align.CENTER,
         })
 
         const dropdownRevealer = new Gtk.Revealer({
@@ -104,7 +106,6 @@ export class QsMenuItem {
         // --- Assemblage Split Button ---
         const splitButtonBox = new Gtk.Box({
             cssClasses: ["qs-split-button"],
-            halign: Gtk.Align.START,
         })
         splitButtonBox.append(this.mainButton)
         splitButtonBox.append(arrowButton)
@@ -148,9 +149,10 @@ export class QsMenuItem {
         dropdownRevealer.connect("notify::child-revealed", () => {
             if (!dropdownRevealer.get_child_revealed() && !this.isOpen) requestShrink()
         })
-
         textRevealer.connect("notify::child-revealed", () => {
-            if (!textRevealer.get_child_revealed() && !this.isOpen) requestShrink()
+            if (!textRevealer.get_child_revealed() && !this.isOpen) {
+                requestShrink()
+            }
         })
     }
 
