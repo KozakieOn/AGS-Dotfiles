@@ -77,37 +77,15 @@ export default function WifiMenu() {
         cssClasses: ["qs-toggle-main"],
     })
 
-    const iconImage = new Gtk.Image({ pixelSize: 24 })
-    const titleLabel = new Gtk.Label({ label: "Wi-Fi", halign: Gtk.Align.START, cssClasses: ["qs-title"] })
-    const subtitleLabel = new Gtk.Label({ halign: Gtk.Align.START, cssClasses: ["qs-subtitle"] })
-
-    const textBox = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        valign: Gtk.Align.CENTER,
-    })
-    textBox.append(titleLabel)
-    textBox.append(subtitleLabel)
-
-    const mainContentBox = new Gtk.Box({
-        spacing: 12,
-        valign: Gtk.Align.CENTER,
-        halign: Gtk.Align.START,
-        marginStart: 8,
-    })
-    mainContentBox.append(iconImage)
-    mainContentBox.append(textBox)
-    mainButton.set_child(mainContentBox)
+    const iconImage = new Gtk.Image({ pixelSize: 32 })
+    mainButton.set_child(iconImage)
 
     mainButton.connect("clicked", toggleWifi)
 
     // Mise à jour de l'UI du bouton principal via les signaux
     const updateMainButton = () => {
         const state = wifi.state ?? 0
-        const ssid = wifi.ssid
-
-        // Application de ton icône SVG perso
         iconImage.set_from_file(getCustomWifiIcon(wifi))
-        subtitleLabel.set_label(ssid || "Déconnecté")
 
         if (state > 30) {
             mainButton.add_css_class("active")

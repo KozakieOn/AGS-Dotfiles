@@ -59,26 +59,9 @@ export default function BluetoothMenu() {
     })
 
     const iconImage = new Gtk.Image({ iconName: "bluetooth-active-symbolic", pixelSize: 24 })
-    const titleLabel = new Gtk.Label({ label: "Bluetooth", halign: Gtk.Align.START, cssClasses: ["qs-title"] })
-    const subtitleLabel = new Gtk.Label({ halign: Gtk.Align.START, cssClasses: ["qs-subtitle"] })
-
-    const textBox = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        valign: Gtk.Align.CENTER,
-    })
-    textBox.append(titleLabel)
-    textBox.append(subtitleLabel)
-
-    const mainContentBox = new Gtk.Box({
-        spacing: 12,
-        valign: Gtk.Align.CENTER,
-        halign: Gtk.Align.START,
-        marginStart: 8,
-    })
-    mainContentBox.append(iconImage)
-    mainContentBox.append(textBox)
-    mainButton.set_child(mainContentBox)
-
+    
+    // On assigne directement l'image au bouton
+    mainButton.set_child(iconImage)
     mainButton.connect("clicked", togglePower)
 
     // --- Bouton Flèche (Sous-menu) ---
@@ -158,12 +141,8 @@ export default function BluetoothMenu() {
         const powered = isBluetoothPowered()
         if (powered) {
             mainButton.add_css_class("active")
-            const devices = getDevices()
-            const connected = devices.find(d => d.connected)
-            subtitleLabel.set_label(connected ? connected.name : "Activé")
         } else {
             mainButton.remove_css_class("active")
-            subtitleLabel.set_label("Désactivé")
         }
     }
 
