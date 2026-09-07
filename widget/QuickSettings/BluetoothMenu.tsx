@@ -53,15 +53,47 @@ export default function BluetoothMenu() {
     }
 
     // --- Bouton principal ---
+    // --- Bouton principal ---
     const mainButton = new Gtk.Button({
-        hexpand: true,
         cssClasses: ["qs-toggle-main"],
     })
 
     const iconImage = new Gtk.Image({ iconName: "bluetooth-active-symbolic", pixelSize: 24 })
-    
-    // On assigne directement l'image au bouton
-    mainButton.set_child(iconImage)
+    const titleLabel = new Gtk.Label({ label: "Bluetooth", halign: Gtk.Align.START, cssClasses: ["qs-title"] })
+    const subtitleLabel = new Gtk.Label({
+        halign: Gtk.Align.START,
+        cssClasses: ["qs-subtitle"],
+        maxWidthChars: 12,
+        ellipsize: 3,
+        lines: 1 
+    })
+
+    const textBox = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        valign: Gtk.Align.CENTER,
+    })
+    textBox.append(titleLabel)
+    textBox.append(subtitleLabel)
+
+    // Revealer pour cacher/montrer le texte
+    const textRevealer = new Gtk.Revealer({
+        transitionType: Gtk.RevealerTransitionType.SLIDE_RIGHT,
+        transitionDuration: 250,
+        revealChild: false, // Caché par défaut
+    })
+    textRevealer.set_child(textBox)
+
+    const mainContentBox = new Gtk.Box({
+        spacing: 12,
+        valign: Gtk.Align.CENTER,
+        halign: Gtk.Align.START,
+        marginStart: 8,
+        marginEnd: 8,
+    })
+    mainContentBox.append(iconImage)
+    mainContentBox.append(textRevealer)
+    mainButton.set_child(mainContentBox)
+
     mainButton.connect("clicked", togglePower)
 
     // --- Bouton Flèche (Sous-menu) ---
@@ -80,7 +112,14 @@ export default function BluetoothMenu() {
 
     arrowButton.connect("clicked", () => {
         isOpen = !isOpen
+
+        const root = wrapper.get_root() as Gtk.Window | null
+        if (isOpen && root) {
+            root.set_default_size(-1, -1)
+        }
+
         revealer.set_reveal_child(isOpen)
+        textRevealer.set_reveal_child(isOpen)
         arrowImage.set_from_icon_name(isOpen ? "pan-up-symbolic" : "pan-down-symbolic")
         if (isOpen) updateDevicesList()
     })
@@ -92,7 +131,10 @@ export default function BluetoothMenu() {
     })
 
     const scrolledWindow = new Gtk.ScrolledWindow({
-        heightRequest: 200,
+        minContentHeight: 180,
+        maxContentHeight: 200,
+        propagateNaturalHeight: true,
+        hscrollbarPolicy: Gtk.PolicyType.NEVER,
         cssClasses: ["qs-wifi-scroll"],
     })
     scrolledWindow.set_child(deviceListBox)
@@ -141,8 +183,12 @@ export default function BluetoothMenu() {
         const powered = isBluetoothPowered()
         if (powered) {
             mainButton.add_css_class("active")
+            const devices = getDevices()
+            const connected = devices.find(d => d.connected)
+            subtitleLabel.set_label(connected ? connected.name : "Activé")
         } else {
             mainButton.remove_css_class("active")
+            subtitleLabel.set_label("Désactivé")
         }
     }
 
@@ -151,7 +197,7 @@ export default function BluetoothMenu() {
     // --- Assemblage final ---
     const splitButtonBox = new Gtk.Box({
         cssClasses: ["qs-split-button"],
-        halign: Gtk.Align.FILL,
+        halign: Gtk.Align.START,
     })
     splitButtonBox.append(mainButton)
     splitButtonBox.append(arrowButton)
@@ -159,9 +205,28 @@ export default function BluetoothMenu() {
     const wrapper = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
         spacing: 8,
+        valign: Gtk.Align.START,
+        vexpand: false,
     })
     wrapper.append(splitButtonBox)
     wrapper.append(revealer)
+
+    const requestShrink = () => {
+        if (!isOpen) {
+            const root = wrapper.get_root() as Gtk.Window | null
+            if (root) {
+                root.set_default_size(1, 1)
+            }
+        }
+    }
+
+    revealer.connect("notify::child-revealed", () => {
+        if (!revealer.get_child_revealed() && !isOpen) requestShrink()
+    })
+
+    textRevealer.connect("notify::child-revealed", () => {
+        if (!textRevealer.get_child_revealed() && !isOpen) requestShrink()
+    })
 
     return wrapper
 }

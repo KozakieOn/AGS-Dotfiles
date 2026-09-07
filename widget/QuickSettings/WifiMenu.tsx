@@ -73,19 +73,55 @@ export default function WifiMenu() {
 
     // --- Bouton principal (Toggle Wi-Fi) ---
     const mainButton = new Gtk.Button({
-        hexpand: true,
         cssClasses: ["qs-toggle-main"],
     })
 
-    const iconImage = new Gtk.Image({ pixelSize: 32 })
-    mainButton.set_child(iconImage)
+    const iconImage = new Gtk.Image({ pixelSize: 24 })
+    
+    // On recrée les labels pour le nom
+    const titleLabel = new Gtk.Label({ label: "Wi-Fi", halign: Gtk.Align.START, cssClasses: ["qs-title"] })
+    const subtitleLabel = new Gtk.Label({
+        halign: Gtk.Align.START,
+        cssClasses: ["qs-subtitle"],
+        maxWidthChars: 16,
+        ellipsize:3,
+        lines:1,
+    })
+
+    const textBox = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        valign: Gtk.Align.CENTER,
+    })
+    textBox.append(titleLabel)
+    textBox.append(subtitleLabel)
+
+    const textRevealer = new Gtk.Revealer({
+        transitionType: Gtk.RevealerTransitionType.SLIDE_RIGHT,
+        transitionDuration: 250,
+        revealChild: false,
+    })
+    textRevealer.set_child(textBox)
+
+    const mainContentBox = new Gtk.Box({
+        spacing: 12,
+        valign: Gtk.Align.CENTER,
+        halign: Gtk.Align.START,
+        marginStart: 8,
+        marginEnd: 8,
+    })
+    mainContentBox.append(iconImage)
+    mainContentBox.append(textRevealer)
+    mainButton.set_child(mainContentBox)
 
     mainButton.connect("clicked", toggleWifi)
 
     // Mise à jour de l'UI du bouton principal via les signaux
     const updateMainButton = () => {
         const state = wifi.state ?? 0
+        const ssid = wifi.ssid
+
         iconImage.set_from_file(getCustomWifiIcon(wifi))
+        subtitleLabel.set_label(ssid || "Déconnecté") // On met à jour le nom (même si c'est caché)
 
         if (state > 30) {
             mainButton.add_css_class("active")
@@ -115,7 +151,14 @@ export default function WifiMenu() {
 
     arrowButton.connect("clicked", () => {
         isOpen = !isOpen
+
+        const root = wrapper.get_root() as Gtk.Window | null
+        if (isOpen && root) {
+            root.set_default_size(-1, -1)
+        }
+
         revealer.set_reveal_child(isOpen)
+        textRevealer.set_reveal_child(isOpen)
         arrowImage.set_from_icon_name(isOpen ? "pan-up-symbolic" : "pan-down-symbolic")
     })
 
@@ -126,7 +169,10 @@ export default function WifiMenu() {
     })
 
     const scrolledWindow = new Gtk.ScrolledWindow({
-        heightRequest: 200,
+        minContentHeight: 180,
+        maxContentHeight: 200,
+        propagateNaturalHeight: true,
+        hscrollbarPolicy: Gtk.PolicyType.NEVER,
         cssClasses: ["qs-wifi-scroll"],
     })
     scrolledWindow.set_child(apListBox)
@@ -185,7 +231,7 @@ export default function WifiMenu() {
     // --- Assemblage final du composant ---
     const splitButtonBox = new Gtk.Box({
         cssClasses: ["qs-split-button"],
-        halign: Gtk.Align.FILL,
+        halign: Gtk.Align.START,
     })
     splitButtonBox.append(mainButton)
     splitButtonBox.append(arrowButton)
@@ -193,9 +239,29 @@ export default function WifiMenu() {
     const wrapper = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
         spacing: 8,
+        valign: Gtk.Align.START,
+        vexpand: false,
     })
     wrapper.append(splitButtonBox)
     wrapper.append(revealer)
+
+    // Réduction forcée de la surface GTK4 Wayland
+    const requestShrink = () => {
+        if (!isOpen) {
+            const root = wrapper.get_root() as Gtk.Window | null
+            if (root) {
+                root.set_default_size(1, 1)
+            }
+        }
+    }
+
+    revealer.connect("notify::child-revealed", () => {
+        if (!revealer.get_child_revealed() && !isOpen) requestShrink()
+    })
+
+    textRevealer.connect("notify::child-revealed", () => {
+        if (!textRevealer.get_child_revealed() && !isOpen) requestShrink()
+    })
 
     return wrapper
 }
@@ -224,6 +290,8 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
         label: ap.ssid || "Inconnu",
         hexpand: true,
         halign: Gtk.Align.START,
+        wrap: true,
+        wrapMode: Gtk.WrapMode.WORD_CHAR,
         cssClasses: isConnected ? ["qs-ap-label", "active"] : ["qs-ap-label"],
     })
 

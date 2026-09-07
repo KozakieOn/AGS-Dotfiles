@@ -1,5 +1,5 @@
 import App from "ags/gtk4/app"
-import { Astal } from "ags/gtk4"
+import { Astal, Gtk } from "ags/gtk4"
 
 import WifiMenu from "./WifiMenu"
 import BluetoothMenu from "./BluetoothMenu"
@@ -15,7 +15,13 @@ export default function Quicksettings(){
             visible={false}
             application={App}
         >
-            <box spacing={16} cssClasses={["qs-container"]}>
+            {/* On ajoute hexpand et halign sur la boîte pour qu'elle se colle à droite et ne prenne que la place nécessaire */}
+            <box 
+                spacing={16} 
+                cssClasses={["qs-container"]} 
+                valign={Gtk.Align.START} 
+                halign={Gtk.Align.END}
+            >
                 <WifiMenu />
                 <BluetoothMenu />
             </box>
