@@ -26,6 +26,8 @@ $text-muted: #e2e8f0;
   background-color: $bg-card;
   border-radius: 12px;
   transition: border-color 200ms ease;
+  min-width: 170px;
+  max-width: 170px;
 
   &:hover {
     border-color: $border-hover;
@@ -74,6 +76,7 @@ $text-muted: #e2e8f0;
 // Conteneur de la liste déroulante (Wi-Fi / Bluetooth)
 .qs-wifi-list-container {
   background-color: $bg-card-dark;
+  max-width: 170px;
   border-radius: 12px;
   padding: 8px;
   margin-top: 6px;

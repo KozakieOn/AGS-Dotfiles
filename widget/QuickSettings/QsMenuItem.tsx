@@ -22,53 +22,49 @@ export class QsMenuItem {
             listContent,
             onMainClick,
             onToggleOpen,
-            subtitleMaxWidthChars = 14,
         } = options
 
         // --- Bouton principal ---
         this.mainButton = new Gtk.Button({
-            cssClasses: ["qs-toggle-main"],
-        })
+        cssClasses: ["qs-toggle-main"],
+        hexpand: true,
+    })
 
-        const titleLabel = new Gtk.Label({
-            label: title,
-            halign: Gtk.Align.START,
-            cssClasses: ["qs-title"],
-        })
+    const titleLabel = new Gtk.Label({
+        label: title,
+        halign: Gtk.Align.START,
+        cssClasses: ["qs-title"],
+        ellipsize:3,
+        hexpand: true,
+    })
 
-        this.subtitleLabel = new Gtk.Label({
-            halign: Gtk.Align.START,
-            cssClasses: ["qs-subtitle"],
-            maxWidthChars: subtitleMaxWidthChars,
-            ellipsize: 3,
-            lines: 1,
-        })
+    this.subtitleLabel = new Gtk.Label({
+        halign: Gtk.Align.START,
+        cssClasses: ["qs-subtitle"],
+        ellipsize:3,
+        hexpand:true,
+    })
 
-        const textBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            valign: Gtk.Align.CENTER,
-        })
-        textBox.append(titleLabel)
-        textBox.append(this.subtitleLabel)
+    const textBox = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        valign: Gtk.Align.CENTER,
+        hexpand: true,
+    })
+    textBox.append(titleLabel)
+    textBox.append(this.subtitleLabel)
 
-        const textRevealer = new Gtk.Revealer({
-            transitionType: Gtk.RevealerTransitionType.SLIDE_RIGHT,
-            transitionDuration: 250,
-            revealChild: false,
-        })
-        textRevealer.set_child(textBox)
-
-        const mainContentBox = new Gtk.Box({
-            spacing: 6,
-            valign: Gtk.Align.CENTER,
-            halign: Gtk.Align.START,
-            marginStart: 8,
-            marginEnd: 0,
-        })
-        mainContentBox.append(iconWidget)
-        mainContentBox.append(textRevealer)
-        this.mainButton.set_child(mainContentBox)
-        this.mainButton.connect("clicked", onMainClick)
+    const mainContentBox = new Gtk.Box({
+        spacing: 6,
+        valign: Gtk.Align.CENTER,
+        halign: Gtk.Align.START,
+        marginStart: 8,
+        marginEnd: 0,
+        hexpand: true,
+    })
+    mainContentBox.append(iconWidget)
+    mainContentBox.append(textBox)
+    this.mainButton.set_child(mainContentBox)
+    this.mainButton.connect("clicked", onMainClick)
 
         // --- Bouton Flèche ---
         const arrowImage = new Gtk.Image({ iconName: "pan-down-symbolic", pixelSize: 16 })
@@ -115,6 +111,7 @@ export class QsMenuItem {
             spacing: 8,
             valign: Gtk.Align.START,
             vexpand: false,
+            widthRequest:170,
         })
         this.wrapper.append(splitButtonBox)
         this.wrapper.append(dropdownRevealer)
@@ -129,7 +126,6 @@ export class QsMenuItem {
             }
 
             dropdownRevealer.set_reveal_child(this.isOpen)
-            textRevealer.set_reveal_child(this.isOpen)
             arrowImage.set_from_icon_name(this.isOpen ? "pan-up-symbolic" : "pan-down-symbolic")
 
             if (onToggleOpen) {
@@ -148,11 +144,6 @@ export class QsMenuItem {
 
         dropdownRevealer.connect("notify::child-revealed", () => {
             if (!dropdownRevealer.get_child_revealed() && !this.isOpen) requestShrink()
-        })
-        textRevealer.connect("notify::child-revealed", () => {
-            if (!textRevealer.get_child_revealed() && !this.isOpen) {
-                requestShrink()
-            }
         })
     }
 

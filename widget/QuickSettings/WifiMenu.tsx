@@ -88,10 +88,13 @@ export default function WifiMenu() {
     const updateMainButton = () => {
         const state = wifi.state ?? 0
         const ssid = wifi.ssid
+        const isEnabled = state > 30
 
         iconImage.set_from_file(getCustomWifiIcon(wifi))
-        menu.setSubtitle(ssid || "Déconnecté")
-        menu.setActive(state > 30)
+        menu.setActive(isEnabled)
+
+        if (!isEnabled) {menu.setSubtitle("Désactivé")}
+        else {menu.setSubtitle(ssid || "Déconnecté")}
     }
 
     wifi.connect("notify::state", updateMainButton)
@@ -169,7 +172,7 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
         label: ap.ssid || "Inconnu",
         hexpand: true,
         halign: Gtk.Align.START,
-        wrap: true,
+        ellipsize:3,
         wrapMode: Gtk.WrapMode.WORD_CHAR,
         cssClasses: isConnected ? ["qs-ap-label", "active"] : ["qs-ap-label"],
     })

@@ -134,6 +134,7 @@ function createDeviceRow(device: BluetoothDevice, onRefresh: () => void) {
         label: device.name || device.mac,
         hexpand: true,
         halign: Gtk.Align.START,
+        ellipsize:3,
         cssClasses: device.connected ? ["qs-ap-label", "active"] : ["qs-ap-label"],
     })
 
