@@ -190,7 +190,6 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
     })
 
     toggleBtn.connect("clicked", () => revealer.set_reveal_child(!revealer.get_reveal_child()))
-
     if (isConnected) {
         const disconnectBtn = new Gtk.Button({ label: "Déconnecter", cssClasses: ["qs-ap-btn"] })
         disconnectBtn.connect("clicked", () => {
