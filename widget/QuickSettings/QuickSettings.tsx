@@ -4,7 +4,6 @@ import { Astal, Gtk } from "ags/gtk4"
 import WifiMenu from "./WifiMenu"
 import BluetoothMenu from "./BluetoothMenu"
 import AudioMenu from "./AudioMenu"
-import { PowerMenuButton } from "../OSD/Powerprofil"
 
 export default function Quicksettings(){
     return (
@@ -26,7 +25,6 @@ export default function Quicksettings(){
             >
                 <box spacing={16} orientation={Gtk.Orientation.HORIZONTAL}>
                     <AudioMenu />
-                    <PowerMenuButton />
                 </box>
 
                 <box spacing={16} orientation={Gtk.Orientation.HORIZONTAL}>

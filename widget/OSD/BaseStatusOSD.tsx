@@ -4,30 +4,31 @@ import { state } from "../../global"
 
 export interface BaseStatusOSDProps {
     name: string
-    iconWidget: Gtk.Widget
-    labelWidget: Gtk.Label
+    assetsPath: string
+    getStateImage: () => string 
+    connectService: (onUpdate: () => void) => void
 }
 
-export interface StatusOSDController {
-    win: Astal.Window
-    showOSD: (text?: string) => void
-}
-
-export default function BaseStatusOSD({ name, iconWidget, labelWidget }: BaseStatusOSDProps): StatusOSDController {
+export default function BaseStatusOSD({ name, assetsPath, getStateImage, connectService }: BaseStatusOSDProps) {
     let hideTimeoutId: number | null = null
     let windowHideTimeoutId: number | null = null
 
+    const picture = new Gtk.Picture({
+        valign: Gtk.Align.CENTER,
+        halign: Gtk.Align.CENTER,
+        can_shrink: true,
+    })
+    picture.add_css_class("osd-status-image")
+
     const box = new Gtk.Box({
-        spacing: 12,
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
     })
     box.add_css_class("osd-container")
-    box.append(iconWidget)
-    box.append(labelWidget)
+    box.append(picture)
 
     const revealer = new Gtk.Revealer({
-        transition_type: Gtk.RevealerTransitionType.SLIDE_UP,
+        transition_type: Gtk.RevealerTransitionType.SLIDE_DOWN,
         transition_duration: 300,
         child: box,
         reveal_child: false,
@@ -35,17 +36,15 @@ export default function BaseStatusOSD({ name, iconWidget, labelWidget }: BaseSta
 
     const win = new Astal.Window({
         name,
-        anchor: Astal.WindowAnchor.BOTTOM,
-        margin_bottom: 50,
+        anchor: Astal.WindowAnchor.TOP,
+        margin_top: 10,
         layer: Astal.Layer.OVERLAY,
         visible: false,
         child: revealer,
     })
 
-    const showOSD = (text?: string) => {
+    const showOSD = () => {
         if (state.inhibitOSD) return
-        if (text) labelWidget.set_label(text)
-
         win.visible = true
         revealer.reveal_child = true
 
@@ -65,5 +64,20 @@ export default function BaseStatusOSD({ name, iconWidget, labelWidget }: BaseSta
         })
     }
 
-    return { win, showOSD }
+    const updateUI = () => {
+        const fileName = getStateImage()
+        // On construit le chemin absolu de l'image
+        // Note: Selon ton setup, tu devras peut-être ajouter le chemin racine de la config (ex: SRC + assetsPath)
+        const fullPath = `${assetsPath}/${fileName}` 
+        picture.set_filename(fullPath)
+    }
+
+    // Écoute des changements de signal du service connecté
+    connectService(() => {
+        updateUI()
+        showOSD()
+    })
+
+    updateUI()
+    return win
 }
