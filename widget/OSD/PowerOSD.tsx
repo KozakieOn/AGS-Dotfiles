@@ -40,7 +40,7 @@ export default function PowerOSD() {
 
     // Revealer & Window configurés pour venir du haut
     const revealer = new Gtk.Revealer({
-        transition_type: Gtk.RevealerTransitionType.SLIDE_DOWN, // Glisse vers le bas
+        transition_type: Gtk.RevealerTransitionType.SLIDE_DOWN,
         transition_duration: 300,
         child: box,
         reveal_child: false,

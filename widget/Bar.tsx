@@ -4,9 +4,10 @@ import { execAsync } from "ags/process"
 import { createPoll } from "ags/time"
 
 // Widgets
-import  BatteryWidget from "./Battery"
-import  ClockWidget from "./Date and Time/Clock"
+import BatteryWidget from "./Battery"
+import ClockWidget from "./Date and Time/Clock"
 import SystemTrayButton from "./SystemTray/SystemTrayButton"
+import SearchRofi from "./Rofi/Search"
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
   const { BOTTOM, LEFT, RIGHT } = Astal.WindowAnchor
@@ -22,7 +23,9 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
       application={app}
     >
       <centerbox cssName="centerbox">
-        <box $type="start"/>
+        <box $type="start" marginStart={15}>
+            <SearchRofi />
+        </box>
         <box $type="center" halign={Gtk.Align.CENTER}>
             <ClockWidget />
         </box>

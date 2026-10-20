@@ -5,6 +5,7 @@ import VolumeOSD from "./widget/OSD/VolumeOSD"
 import BrightnessOSD from "./widget/OSD/BrightnessOSD"
 import Quicksettings from "./widget/QuickSettings/QuickSettings"
 import PowerOSD from "./widget/OSD/PowerOSD"
+import PlaneOSD from "./widget/OSD/PlaneOSD"
 
 app.start({
   css: style,
@@ -13,6 +14,7 @@ app.start({
     VolumeOSD()
     BrightnessOSD()
     PowerOSD()
+    PlaneOSD()
     Quicksettings()
   },
 })
