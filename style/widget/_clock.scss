@@ -1,23 +1,9 @@
-.clock-widget {
-  background-color: transparent;
+.clock_label {
+  background-color: rgba(10, 25, 47, 0.90);
   border-radius: 8px;
-  padding: 2px 8px;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.clock-widget:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.clock-label {
   font-family: "JetBrainsMono Nerd Font", monospace;
   color: #ffffff;
   font-weight: 700;
   font-size: 16px;
-}
-
-.clock-calendar {
-  padding: 8px;
-  border-radius: 12px;
-  background-color: #1e1e2e;
+  padding:10px 8px;
 }

@@ -20,6 +20,16 @@ $text-muted: #e2e8f0;
 // ==========================================
 // Composants QuickSettings
 // ==========================================
+.system_tray_btn{
+  background:transparent;
+  border-radius: none;
+  padding: 0
+}
+/*.system_tray_container {
+  background-color: rgba(10, 25, 47, 0.90);
+  border-radius: 8px;
+  padding: 4px 8px;
+}*/
 
 // Conteneur du Split Button (Bouton principal + Flèche)
 .qs-split-button {

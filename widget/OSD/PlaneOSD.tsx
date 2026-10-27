@@ -3,7 +3,7 @@ import app from "ags/gtk4/app"
 import GLib from "gi://GLib"
 import { state } from "../../global"
 
-const assetsPath = "/home/aloys/.config/ags/assets/OSD/Plane"
+const assetsPath = `${GLib.get_user_config_dir()}/ags/assets/OSD/Plane`
 const ICONS = {
     on: `${assetsPath}/plane.svg`,
     off: `${assetsPath}/plane_off.svg`,
@@ -29,12 +29,7 @@ export default function PlaneOSD() {
 
     isAirplaneOn = checkAirplaneState()
 
-    // --- ÉTAPE 2 : TEST DU WIDGET ---
-    // On utilise d'abord une icône système de test ("network-wireless-symbolic").
-    // Si cette icône s'affiche, le problème vient exclusivement de ton fichier SVG ou de son décodage.
     const icon = new Gtk.Image({
-        // file: targetIconPath, // <- Décommente ceci une fois le test validé
-        icon_name: "network-wireless-symbolic",
         pixel_size: 32,
     })
     icon.set_size_request(32, 32)
@@ -90,9 +85,6 @@ export default function PlaneOSD() {
             const newIconPath = isAirplaneOn ? ICONS.on : ICONS.off
             
             console.log("Basculement -> Mode avion :", isAirplaneOn, "| Nouvelle icône :", newIconPath)
-            
-            // Remplace par ton fichier une fois testé
-            // icon.file = newIconPath
             icon.file = newIconPath
 
             showOSD()

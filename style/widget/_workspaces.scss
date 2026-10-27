@@ -1,0 +1,36 @@
+.workspace_container {
+    background-color: rgba(10, 25, 47, 0.90) ;
+    border-radius: 12px;
+    padding: 4px 6px;
+}
+
+.workspace_btn {
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 2px 8px;
+    color: #cdd6f4;
+    transition: 200ms
+}
+
+.workspace_btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.workspace_btn.active {
+    background-color: #89b4fa;
+    color: #11111b;
+}
+
+.workspace_icons {
+    margin-left: 4px;
+}
+
+.workspace_label{
+    font-size: 16px;
+}
+
+.workspace_more_label{
+    font-size: 16px;
+}
+

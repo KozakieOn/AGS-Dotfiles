@@ -2,6 +2,7 @@
 @use "./widget/clock";
 @use "./widget/osdBar";
 @use "./widget/quickSettings";
+@use "./widget/workspaces";
 
 // https://gitlab.gnome.org/GNOME/gtk/-/blob/gtk-3-24/gtk/theme/Adwaita/_colors-public.scss
 $fg-color: #{"@theme_fg_color"};
@@ -12,7 +13,10 @@ window.Bar {
   font-weight: bold;
 
   button {
-    border-radius: 8px;
-    margin: 2px;
+    background-color: rgba(10, 25, 47, 0.90);
+    border-radius:8px;
+    color:#fff;
   }
+  margin-top: none;
+  margin-bottom:5px;
 }
