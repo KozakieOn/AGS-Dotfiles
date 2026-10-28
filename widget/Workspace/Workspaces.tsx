@@ -92,6 +92,7 @@ export default function Workspace() {
         spacing: 6,
         halign: Gtk.Align.CENTER,
         valign: Gtk.Align.CENTER,
+        height_request: 43,
     })
 
     const updateWorkspaces = () => {

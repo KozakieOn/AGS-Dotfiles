@@ -6,15 +6,13 @@ import AstalBattery from "gi://AstalBattery"
 
 // Constantes de configuration
 const CONFIG = {
-    widgetSize: 45,
+    widgetSize: 36,
 
-    // Jauge
-    barMaxWidth: 35,
-    barHeight: 17,
-    barMarginLeft: 4,
-
-    // Eclair
-    thunderSize: 12,
+    get barMaxWidth() { return Math.round(this.widgetSize * 0.77); },
+    get barHeight() { return Math.round(this.widgetSize * 0.38); },
+    get barMarginLeft() { return Math.round(this.widgetSize * 0.09); },
+    get thunderSize() { return Math.round(this.widgetSize * 0.27); },
+    get labelSize() { return Math.round(this.widgetSize * 0.30)}
 }
 
 export default function Battery() {
@@ -50,10 +48,14 @@ export default function Battery() {
 
     // Label du pourcentage
     const label = new Gtk.Label({
+        
         halign: Gtk.Align.CENTER,
         valign: Gtk.Align.CENTER,
     })
     label.add_css_class("battery-percentage")
+    const cssProvider = new Gtk.CssProvider()
+    cssProvider.load_from_data(`.battery-percentage { font-size: ${CONFIG.labelSize}px; }`, -1)
+    label.get_style_context().add_provider(cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     // Éclair
     const thunderPicture = new Gtk.Image({

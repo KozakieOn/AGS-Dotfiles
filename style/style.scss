@@ -17,6 +17,14 @@ window.Bar {
     border-radius:8px;
     color:#fff;
   }
+  .system_tray_btn{
+    padding: 2px 7px;
+  }
+  popover.power_popover contents {
+    background-color: #1e1e2e; /* Change ici ta couleur de fond (ex: couleur Dark/Catppuccin) */
+    border-radius: 8px;       /* Arrondis des coins */
+    margin-bottom:12px;
+}
   margin-top: none;
   margin-bottom:5px;
 }
