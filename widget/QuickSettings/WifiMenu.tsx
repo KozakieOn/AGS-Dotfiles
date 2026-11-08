@@ -13,6 +13,20 @@ interface AccessPoint {
     rsnFlags?: number
 }
 
+// Vrai tant que le champ mot de passe a le focus : on ne reconstruit pas la liste
+// pendant la saisie, sinon l'Entry est détruit et recréé (texte et focus perdus).
+let passwordFieldFocused = false
+
+// Lance une commande avec un tableau d'arguments (pas de shell, donc pas de
+// problème avec les guillemets, $, espaces... dans un SSID ou un mot de passe).
+function run(argv: string[]) {
+    try {
+        GLib.spawn_async(null, argv, null, GLib.SpawnFlags.SEARCH_PATH, null)
+    } catch (e) {
+        console.error("[WifiMenu] Erreur spawn :", e)
+    }
+}
+
 function getKnownNetworks(): string[] {
     try {
         const [success, stdout] = GLib.spawn_command_line_sync("nmcli -t -f NAME connection show")
@@ -67,7 +81,7 @@ export default function WifiMenu() {
 
     const toggleWifi = () => {
         const isEnabled = wifi.state > 30
-        GLib.spawn_command_line_async(`nmcli radio wifi ${isEnabled ? "off" : "on"}`)
+        run(["nmcli", "radio", "wifi", isEnabled ? "off" : "on"])
     }
 
     const iconImage = new Gtk.Image({ pixelSize: 24 })
@@ -103,6 +117,9 @@ export default function WifiMenu() {
     updateMainButton()
 
     const updateAccessPoints = () => {
+        // Ne pas casser la saisie du mot de passe en cours
+        if (passwordFieldFocused) return
+
         let child = apListBox.get_first_child()
         while (child !== null) {
             const next = child.get_next_sibling()
@@ -193,15 +210,15 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
     if (isConnected) {
         const disconnectBtn = new Gtk.Button({ label: "Déconnecter", cssClasses: ["qs-ap-btn"] })
         disconnectBtn.connect("clicked", () => {
-            GLib.spawn_command_line_async(`nmcli connection down "${ap.ssid}"`)
+            run(["nmcli", "connection", "down", ap.ssid!])
             revealer.set_reveal_child(false)
             setTimeout(onRefresh, 400)
         })
 
         const forgetBtn = new Gtk.Button({ label: "Oublier", cssClasses: ["qs-ap-btn", "danger"] })
         forgetBtn.connect("clicked", () => {
-            GLib.spawn_command_line_async(`nmcli connection down "${ap.ssid}"`)
-            GLib.spawn_command_line_async(`nmcli connection delete "${ap.ssid}"`)
+            run(["nmcli", "connection", "down", ap.ssid!])
+            run(["nmcli", "connection", "delete", ap.ssid!])
             revealer.set_reveal_child(false)
             setTimeout(onRefresh, 400)
         })
@@ -211,13 +228,13 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
     } else if (isKnown) {
         const connectBtn = new Gtk.Button({ label: "Connecter", cssClasses: ["qs-ap-btn"] })
         connectBtn.connect("clicked", () => {
-            GLib.spawn_command_line_async(`nmcli connection up "${ap.ssid}"`)
+            run(["nmcli", "connection", "up", ap.ssid!])
             setTimeout(onRefresh, 400)
         })
 
         const forgetBtn = new Gtk.Button({ label: "Oublier", cssClasses: ["qs-ap-btn", "danger"] })
         forgetBtn.connect("clicked", () => {
-            GLib.spawn_command_line_async(`nmcli connection delete "${ap.ssid}"`)
+            run(["nmcli", "connection", "delete", ap.ssid!])
             setTimeout(onRefresh, 400)
         })
 
@@ -227,20 +244,40 @@ function createApRow(ap: AccessPoint, currentSsid: string | null, isKnown: boole
         if (!isEncrypted) {
             const connectBtn = new Gtk.Button({ label: "Connecter", cssClasses: ["qs-ap-btn", "active"] })
             connectBtn.connect("clicked", () => {
-                GLib.spawn_command_line_async(`nmcli device wifi connect "${ap.ssid}"`)
+                run(["nmcli", "device", "wifi", "connect", ap.ssid!])
                 setTimeout(onRefresh, 800)
             })
             actionsBox.append(connectBtn)
         } else {
-            const pwEntry = new Gtk.Entry({ placeholder_text: "Mot de passe...", visibility: false, hexpand: true })
-            const connectBtn = new Gtk.Button({ label: "Valider", cssClasses: ["qs-ap-btn", "active"] })
+            const pwEntry = new Gtk.Entry({ placeholderText: "Mot de passe...", visibility: false, hexpand: true })
 
-            connectBtn.connect("clicked", () => {
-                const pw = pwEntry.get_text()
-                if (pw) GLib.spawn_command_line_async(`nmcli device wifi connect "${ap.ssid}" password "${pw}"`)
-                else GLib.spawn_command_line_async(`nmcli device wifi connect "${ap.ssid}"`)
-                setTimeout(onRefresh, 1000)
+            // Suivi du focus : tant que le champ est actif, la liste n'est plus reconstruite
+            const focusCtrl = new Gtk.EventControllerFocus()
+            focusCtrl.connect("notify::contains-focus", () => {
+                passwordFieldFocused = focusCtrl.containsFocus
             })
+            pwEntry.add_controller(focusCtrl)
+            // Sécurité : si le champ disparaît (menu fermé, revealer replié), on libère le blocage
+            pwEntry.connect("unmap", () => { passwordFieldFocused = false })
+
+            // focusOnClick: false -> cliquer sur "Valider" ne retire pas le focus du champ
+            // (et évite qu'un rafraîchissement ne détruise le bouton pendant le clic)
+            const connectBtn = new Gtk.Button({
+                label: "Valider",
+                cssClasses: ["qs-ap-btn", "active"],
+                focusOnClick: false,
+            })
+
+            const submit = () => {
+                const pw = pwEntry.get_text()
+                passwordFieldFocused = false
+                if (pw) run(["nmcli", "device", "wifi", "connect", ap.ssid!, "password", pw])
+                else run(["nmcli", "device", "wifi", "connect", ap.ssid!])
+                setTimeout(onRefresh, 1000)
+            }
+
+            connectBtn.connect("clicked", submit)
+            pwEntry.connect("activate", submit) // validation avec la touche Entrée
 
             actionsBox.append(pwEntry)
             actionsBox.append(connectBtn)

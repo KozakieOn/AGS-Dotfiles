@@ -4,6 +4,11 @@ import GLib from "gi://GLib"
 import Wp from "gi://AstalWp"
 import { QsMenuItem } from "./QsMenuItem"
 
+// Filet de sécurité optionnel : si certaines sorties inutiles s'affichent encore,
+// mets par exemple /HDMI|DisplayPort/i pour les masquer par leur nom.
+// ATTENTION : ça masquera aussi ces sorties si tu les utilises vraiment.
+const HIDDEN_OUTPUTS_PATTERN: RegExp | null = /HDMI|DisplayPort/i
+
 export default function AudioMenu() {
     const wp = Wp.get_default()
     const audio = wp?.audio
@@ -20,6 +25,23 @@ export default function AudioMenu() {
         if (vol < 33) return `${assetsPath}/speaker-low.svg`
         if (vol < 75) return `${assetsPath}/speaker-medium.svg`
         return `${assetsPath}/speaker-high.svg`
+    }
+
+    // Lit l'état (muet + volume en %) d'une sortie audio
+    const getSpeakerState = (speaker: any) => {
+        const isMuted = typeof speaker.get_mute === "function" ? speaker.get_mute() : Boolean(speaker.mute)
+        const rawVol = typeof speaker.get_volume === "function" ? speaker.get_volume() : speaker.volume
+        return { isMuted, vol: Math.round((rawVol ?? 0) * 100) }
+    }
+
+    // Une sortie est affichée sauf si son port est signalé "non disponible"
+    // (ex : sorties HDMI / DisplayPort sans écran branché).
+    // La sortie par défaut reste toujours visible.
+    const isSpeakerVisible = (speaker: any): boolean => {
+        if (audio.defaultSpeaker === speaker) return true
+        if (speaker.route?.available === Wp.Available.NO) return false
+        if (HIDDEN_OUTPUTS_PATTERN && HIDDEN_OUTPUTS_PATTERN.test(speaker.description ?? "")) return false
+        return true
     }
 
     const toggleMute = () => {
@@ -59,13 +81,13 @@ export default function AudioMenu() {
             child = next
         }
 
-        const speakers = audio.get_speakers()
+        const speakers = audio.get_speakers().filter(isSpeakerVisible)
         const subtitleBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4, marginBottom: 4 })
-        
-        subtitleBox.append(new Gtk.Label({ 
-            label: "Périphériques de sortie", 
-            halign: Gtk.Align.START, 
-            cssClasses: ["qs-subtitle"] 
+
+        subtitleBox.append(new Gtk.Label({
+            label: "Périphériques de sortie",
+            halign: Gtk.Align.START,
+            cssClasses: ["qs-subtitle"]
         }))
         deviceListBox.append(subtitleBox)
 
@@ -78,8 +100,11 @@ export default function AudioMenu() {
                 marginStart: 4, marginEnd: 4,
             })
 
+            // Icône SVG perso (la même logique que le bouton principal, par sortie)
+            const { isMuted, vol } = getSpeakerState(speaker)
+
             const topBox = new Gtk.Box({ spacing: 8 })
-            const icon = new Gtk.Image({ iconName: "audio-speakers-symbolic", pixelSize: 18 })
+            const icon = new Gtk.Image({ file: getCustomAudioIcon(isMuted, vol), pixelSize: 18 })
             const label = new Gtk.Label({
                 label: speaker.description || "Périphérique Audio",
                 hexpand: true,
@@ -121,9 +146,7 @@ export default function AudioMenu() {
             return
         }
 
-        const isMuted = typeof speaker.get_mute === "function" ? speaker.get_mute() : Boolean(speaker.mute)
-        const rawVol = typeof speaker.get_volume === "function" ? speaker.get_volume() : speaker.volume
-        const vol = Math.round((rawVol ?? 0) * 100)
+        const { isMuted, vol } = getSpeakerState(speaker)
 
         // Application de l'icône SVG personnalisée via set_from_file
         iconImage.set_from_file(getCustomAudioIcon(isMuted, vol))

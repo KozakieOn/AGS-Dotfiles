@@ -1,7 +1,7 @@
 // ==========================================
 // Palette de couleurs (Base: #0a192f)
 // ==========================================
-$bg-main: #0a192f;
+$bg-main: rgba(10, 25, 47, 0.9);
 $bg-card: lighten($bg-main, 4%);         // #112240 - Cartes et conteneurs
 $bg-card-dark: darken($bg-main, 2%);    // #071223 - Fond de liste déroulante
 $bg-hover: rgba(255, 255, 255, 0.06);
@@ -24,6 +24,9 @@ $text-muted: #e2e8f0;
   background:transparent;
   border-radius: none;
   padding: 0
+}
+window.quick-settings {
+  background-color: transparent;
 }
 /*.system_tray_container {
   background-color: rgba(10, 25, 47, 0.90);
@@ -155,4 +158,31 @@ $text-muted: #e2e8f0;
       color: #ffffff;
     }
   }
+}
+
+.qs-media-box{
+  background-color: $bg-card-dark;
+  border-radius: 12px;
+  padding:4px;
+
+  .qs-media-cover{
+    background-color: $bg-card-dark;
+    border-radius:8px;
+  }
+  .qs-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  .qs-subtitle {
+    font-size: 11px;
+    color: $text-primary;
+  }
+}
+.qs-container{
+  background-color: rgba(10, 25, 47, 0.75);
+  padding:10px;
+  border: 3px solid transparent;
+  border-image: linear-gradient(45deg, rgba(30, 30, 118, 0.93), rgba(242, 161, 242, 0.93)) 1;
 }

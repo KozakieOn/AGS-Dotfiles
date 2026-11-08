@@ -12,7 +12,7 @@ const CONFIG = {
     get barHeight() { return Math.round(this.widgetSize * 0.38); },
     get barMarginLeft() { return Math.round(this.widgetSize * 0.09); },
     get thunderSize() { return Math.round(this.widgetSize * 0.27); },
-    get labelSize() { return Math.round(this.widgetSize * 0.30)}
+    get labelSize() { return Math.round(this.widgetSize * 0.40)}
 }
 
 export default function Battery() {
